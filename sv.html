@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Sorting Visualizer</title>
+    <style>
+      /* CSS for the sorting bar */
+      .sorting-bar {
+        display: inline-block;
+        width: 10px;
+        margin-right: 2px;
+        background-color: pink;
+        height: 200px;
+      }
+
+      /* CSS for the sorting bar when it's being compared */
+      .sorting-bar.comparing {
+        background-color: blue;
+      }
+
+      /* CSS for the sorting bar when it's being swapped */
+      .sorting-bar.swapping {
+        background-color: #f1c40f;
+      }
+
+      /* CSS for the container of the sorting bars */
+      .sorting-container {
+        display: flex;
+        margin-bottom: 10px;
+      }
+
+      /* CSS for the control buttons */
+      button {
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Sorting Visualizer</h1>
+    <div class="sorting-container"></div>
+    <button id="bubble-sort">Bubble Sort</button>
+    <button id="merge-sort">Merge Sort</button>
+    <button id="quick-sort">Quick Sort</button>
+
+    <script>
+      // Get the sorting container from the DOM
+      const sortingContainer = document.querySelector('.sorting-container');
+
+      // Generate an array of random numbers to sort
+      const arrayToSort = Array.from({length: 50}, () => Math.floor(Math.random() * 200));
+
+      // Render the sorting bars in the sorting container
+      arrayToSort.forEach((number) => {
+        const sortingBar = document.createElement('div');
+        sortingBar.classList.add('sorting-bar');
+        sortingBar.style.height = `${number}px`;
+        sortingContainer.appendChild(sortingBar);
+      });
+
+      // Get the control buttons from the DOM
+      const bubbleSortButton = document.getElementById('bubble-sort');
+      const mergeSortButton = document.getElementById('merge-sort');
+      const quickSortButton = document.getElementById('quick-sort');
+
+      // Function to swap two elements in the array and update the sorting bars
+      function swap(array, i, j) {
+        const temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+
+        const sortingBars = document.querySelectorAll('.sorting-bar');
+        sortingBars[i].classList.add('swapping');
+        sortingBars[j].classList.add('swapping');
+
+        setTimeout(() => {
+          sortingBars[i].style.height = `${array[i]}px`;
+          sortingBars[j].style.height = `${array[j]}px`;
+          sortingBars[i].classList.remove('swapping');
+          sortingBars[j].classList.remove('swapping');
+        }, 100);
+      }
+
+      // Function to compare two elements in the array and update the sorting bars
+      function compare(array, i, j) {
+        const sortingBars = document.querySelectorAll('.sorting-bar');
+        sortingBars[i].classList.add('comparing');
+        sortingBars[j].classList.add('comparing');
+
+        setTimeout(() => {
+          sortingBars[i].classList.remove('comparing');
+          sortingBars[j].classList.remove('comparing');
+        }, 100);
+      }
+
+      // Bubble Sort algorithm
+      function bubbleSort(array) {
+        for (let i = 0; i < array.length - 1; i++) {
+          for (let j = 0; j < array.length - i - 1; j++) {
+            compare(array, j, j + 1);
+            if (array[j] > array[j + 1]) {
+              swap(array, j, j + 1);
+            }
+          }
+        }
+      }
+
+      // Merge Sort algorithm
+      function mergeSort(array) {
+        if (array.length <= 1) {
+          return array;
+        }
+
+        const mid = Math.floor(array.length / 2);
+        const leftArray = mergeSort(array.slice(0, mid));
+        const rightArray = mergeSort(array.slice(mid));
+
+        const mergedArray = [];
+        let leftIndex = 0;
+        let rightIndex = 0;
+
+        while (leftIndex < leftArray.length && rightIndex < rightArray.length) {
+          compare(array, leftIndex, rightIndex + mid);
+          if (leftArray[leftIndex] < rightArray[rightIndex]) {
+            mergedArray.push(leftArray[leftIndex]);
+            leftIndex++;
+          } else {
+            mergedArray.push(rightArray[rightIndex]);
+            rightIndex++;
+          }
+        }
+
+        return mergedArray.concat(leftArray.slice(leftIndex)).concat(rightArray.slice(rightIndex));
+      }
+
+      // Quick Sort algorithm
+      function quickSort(array, left, right) {
+        if (left >= right) {
+          return;
+        }
+
+        const pivot = array[Math.floor((left + right) / 2)];
+        let i = left;
+        let j = right;
+
+        while (i <= j) {
+          while (array[i] < pivot) {
+            i++;
+          }
+          while (array[j] > pivot) {
+            j--;
+          }
+          if (i <= j) {
+            swap(array, i, j);
+            i++;
+            j--;
+          }
+        }
+
+        quickSort(array, left, j);
+        quickSort(array, i, right);
+      }
+
+      // Event listener for the Bubble Sort button
+      bubbleSortButton.addEventListener('click', () => {
+        bubbleSort(arrayToSort);
+      });
+
+      // Event listener for the Merge Sort button
+      mergeSortButton.addEventListener('click', () => {
+        const sortedArray = mergeSort(arrayToSort);
+        // Update the sorting bars with the sorted array
+      const sortingBars = document.querySelectorAll('.sorting-bar');
+      for (let i = 0; i < sortingBars.length; i++) {
+      sortingBars[i].classList.add('swapping');
+       setTimeout(() => {
+       sortingBars[i].style.height = `${sortedArray[i]}px`;
+       sortingBars[i].classList.remove('swapping');
+       }, 100 * i);
+        }
+      });
+// Event listener for the Quick Sort button
+quickSortButton.addEventListener('click', () => {
+    quickSort(arrayToSort, 0, arrayToSort.length - 1);
+
+    // Update the sorting bars with the sorted array
+    const sortingBars = document.querySelectorAll('.sorting-bar');
+    for (let i = 0; i < sortingBars.length; i++) {
+      sortingBars[i].classList.add('swapping');
+      setTimeout(() => {
+        sortingBars[i].style.height = `${arrayToSort[i]}px`;
+        sortingBars[i].classList.remove('swapping');
+      }, 100 * i);
+    }
+  });
+</script>
+</body> </html> 
